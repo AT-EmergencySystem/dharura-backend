@@ -1,6 +1,6 @@
 from flask import Flask, request, redirect, jsonify, abort
 from model import SubscriberModel, db
-from modules import send_subscription_alert
+from modules import send_subscription_alert, subscriber_pull
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sample_db.db'
@@ -35,9 +35,14 @@ def subscriber_register():
         return abort(403)
 
 
-@app.route('/push_notification', methods=['POST'])
+@app.route("/push_notification", methods=['POST'])
 def push_notification():
-    pass
+    title = request.form['title']
+    description = request.form['description']
+
+    subscriber_pull(title, description)
+
+    return jsonify({"STAT": "SENT"})
 
 
 if __name__ == '__main__':
