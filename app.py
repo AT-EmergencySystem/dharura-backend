@@ -1,12 +1,13 @@
 from flask import Flask, request, redirect, jsonify, abort
 from model import SubscriberModel, db
+from modules import send_subscription_alert
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sample_db.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATION"] = False
-db.init(app)
+db.init_app(app)
 
-@app.before_first_request()
+@app.before_first_request
 def create_tables():
     db.create_all()
 
@@ -18,13 +19,26 @@ def subscriber_register():
         occupation = request.form['Occupation']
         if msisdn[:1] == "+" and msisdn[:4] == "+255":
             if occupation == "Staff" or occupation == "Student":
-                subscriber = SubscriberModel(msisdn=msisdn, occupation=occupation)
-                db.session.add(subscriber)
-                db.session.commit()
-                return jsonify({"STAT": "Subscriber Successfully"})
+                if SubscriberModel.query.filter_by(msisdn=msisdn).first() is None:
+                    subscriber = SubscriberModel(msisdn=msisdn, occupation=occupation)
+                    db.session.add(subscriber)
+                    db.session.commit()
+                    send_subscription_alert(msisdn)
+                    return jsonify({"STAT": "Subscribed Successfully"})
+                else:
+                    return jsonify({"STAT": "Occupation Not Clear"})
             else:
-                return jsonify({"STAT": "Occupation Not Clear"})
+                return jsonify({"STAT": "Subscriber Registered"})
         else:
             return jsonify({"STAT": "MSISDN/Phone Number Not Clear"})
     else:
         return abort(403)
+
+
+@app.route('/push_notification', methods=['POST'])
+def push_notification():
+    pass
+
+
+if __name__ == '__main__':
+    app.run()
