@@ -24,7 +24,8 @@ def subscriber_register():
                     db.session.add(subscriber)
                     db.session.commit()
                     send_subscription_alert(msisdn)
-                    return jsonify({"STAT": "Subscribed Successfully"})
+
+                    return redirect('https://emergency-system.netlify.app/')
                 else:
                     return jsonify({"STAT": "Occupation Not Clear"})
             else:
@@ -42,8 +43,8 @@ def push_notification():
 
     subscriber_pull(title, description)
 
-    return jsonify({"STAT": "SENT"})
+    return redirect('https://emergency-system.netlify.app/')
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

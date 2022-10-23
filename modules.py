@@ -4,7 +4,7 @@ from model import SubscriberModel
 
 africastalking.initialize(
     username="sandbox",
-    api_key="73e380fcbb80fd5190ccfa9c43e0a65c57a307479982e202bc2614bc102c40dc"
+    api_key="XXXX"
 )
 
 sms = africastalking.SMS
@@ -32,15 +32,22 @@ def subscriber_pull(title, description):
 
     sender = "32721"
 
-    for i in msisdns:
-        try:
-            message = f"{title}, {description}"
-            response = sms.send(message, i[0], sender)
-            print(response)
-        except Exception as e:
-            print(e)
+    # for i in msisdns:
+    #     try:
+    #         message = f"{title}, {description}"
+    #         response = sms.send(message, i[0], sender)
+    #         print(response)
+    #     except Exception as e:
+    #         print(e)
+
+    try:
+        messages = f"{title}, {description}"
+        sender = "32721"
+        recipient = ["+255758405095"]
+        response = sms.send(messages, recipient, sender)
+        print(response)
+    except Exception as e:
+        print(e)
 
 def send_notifications_all(title, description):
     msisdns = SubscriberModel.query.order_by(SubscriberModel.msisdn.desc()).all()
-
-subscriber_pull()
